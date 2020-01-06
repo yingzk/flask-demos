@@ -1,5 +1,6 @@
 from flask import Flask
 
+from app.exception import MyException
 from app.models import db
 
 
@@ -9,6 +10,10 @@ def register_plugin(app: Flask):
 
 def create_app():
     app = Flask(__name__)
+
+    @app.errorhandler(MyException)
+    def error_handler(e):
+        return e.args[0]
 
     # 加载配置
     app.config.from_object('config.setting')

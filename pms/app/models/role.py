@@ -16,6 +16,29 @@ class RoleModel(BaseModel):
     name = db.Column(String(20), nullable=False, unique=True, comment='角色名称')
     remark = db.Column(String(200), nullable=True, comment='备注')
 
+    permissions = db.relationship(
+        'PermissionModel',
+        secondary='permission_role',
+        primaryjoin='RoleModel.id == PermissionRoleModel.role_id',
+        secondaryjoin='PermissionRoleModel.permission_id == PermissionModel.id',
+        uselist=True,
+        backref='roles'
+    )
+
+    parent_roles = db.relationship(
+        'RoleModel',
+        secondary='role_role',
+        primaryjoin='RoleModel.id == RoleRoleModel.role_id',
+        secondaryjoin='RoleRoleModel.parent_id == RoleModel.id',
+        uselist=True
+    )
+
+    def get_permissions(self):
+        permissions = []
+        for parent_role in self.parent_roles:
+            permissions.extend(parent_role.permissions)
+        return permissions
+
     def __repr__(self):
         return f'<RoleModel {self.id}>'
 

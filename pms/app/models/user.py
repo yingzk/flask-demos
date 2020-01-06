@@ -1,6 +1,7 @@
 from sqlalchemy import String
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from app import MyException
 from app.models import db
 from app.models.base import BaseModel
 
@@ -18,6 +19,18 @@ class UserModel(BaseModel):
 
     remark = db.Column(String(300), nullable=True, comment='备注，做一些小记录')
 
+    roles = db.relationship(
+        'RoleModel',
+        secondary='role_user',
+        primaryjoin='UserModel.id == RoleUserModel.user_id',
+        secondaryjoin='RoleUserModel.role_id == RoleModel.id',
+        uselist=True,
+        backref='users'
+    )
+
+    def get_permissions(self):
+        return [{item.id: item.get_permissions()} for item in self.roles]
+
     @property
     def password(self):
         return self._password
@@ -28,6 +41,33 @@ class UserModel(BaseModel):
 
     def check_password(self, raw_password):
         return check_password_hash(self._password, raw_password)
+
+    @staticmethod
+    def login(form):
+        """
+        :param form: Login form
+        :return:
+        """
+        name = form.get('name')
+        password = form.get('password')
+        if name and password:
+            user = UserModel.query.filter(UserModel.name == name).first_or_404('User not exists')
+            if user.check_password(password):
+                return user.to_json()
+            else:
+                raise MyException('password incorrect')
+        else:
+            raise MyException('form error')
+
+    @staticmethod
+    def get_menu(uid, role):
+        """get user menu"""
+        # Step1 get user roles
+        user = UserModel.query.get(uid)
+        print(user.get_permissions())
+
+    def to_json(self):
+        return {'id': self.id, 'name': self.name, 'remark': self.remark}
 
     def __repr__(self):
         return f'<UserModel {self.id}>'

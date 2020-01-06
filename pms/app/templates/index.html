@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+
+<h3>PMS</h3>
+
+{% if 'user' in session %}
+    <p>
+        current user: {{ session['user']['name'] }}
+        <a style="margin-left: 1em" href="{{ url_for('logout') }}">log out</a>
+    </p>
+{% else %}
+    <a href="{{ url_for('login') }}">login</a>
+{% endif %}
+
+
+<h4>Menu</h4>
+{% if menu %}
+    <ul>
+        {% for item in menu %}
+            <li><a href="{{ item.url }}">{{ item.name }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>not login</p>
+{% endif %}
+
+
+</body>
+</html>
