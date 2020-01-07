@@ -28,6 +28,9 @@ class UserModel(BaseModel):
         backref='users'
     )
 
+    def get_roles(self):
+        return [{'id': item.id, 'name': item.name} for item in self.roles]
+
     def get_permissions(self):
         return [{item.id: item.get_permissions()} for item in self.roles]
 
@@ -59,15 +62,8 @@ class UserModel(BaseModel):
         else:
             raise MyException('form error')
 
-    @staticmethod
-    def get_menu(uid, role):
-        """get user menu"""
-        # Step1 get user roles
-        user = UserModel.query.get(uid)
-        print(user.get_permissions())
-
     def to_json(self):
-        return {'id': self.id, 'name': self.name, 'remark': self.remark}
+        return {'id': self.id, 'name': self.name, 'remark': self.remark, 'roles': self.get_roles()}
 
     def __repr__(self):
         return f'<UserModel {self.id}>'

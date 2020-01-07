@@ -1,7 +1,7 @@
 from sqlalchemy import String
 from sqlalchemy.dialects.mysql import INTEGER
 
-from . import db
+from . import db, MenuModel
 from .base import BaseModel
 
 
@@ -38,6 +38,26 @@ class RoleModel(BaseModel):
         for parent_role in self.parent_roles:
             permissions.extend(parent_role.permissions)
         return permissions
+
+    @staticmethod
+    def get_menu(role_id):
+        """get role menu"""
+        role = RoleModel.query.get(role_id)
+        permissions = role.get_permissions()
+
+        menu = []
+        # Step1 add common menu
+        menu.extend(MenuModel.get_common_menu())
+
+        # Step2 add permission menu (remove duplicates)
+        for permission in permissions:
+            for item in permission.get_menus():
+                if item['id'] not in [item['id'] for item in menu]:
+                    menu.append(item)
+
+        # Step3 order
+        menu.sort(key=lambda x: x['order'])
+        return menu
 
     def __repr__(self):
         return f'<RoleModel {self.id}>'

@@ -13,6 +13,22 @@
         current user: {{ session['user']['name'] }}
         <a style="margin-left: 1em" href="{{ url_for('logout') }}">log out</a>
     </p>
+
+    <div>
+        <b>Select your role:</b>
+        <div style="margin-top: 1em">
+            <form action="{{ url_for('change_role') }}" method="post">
+                {% for role in session['user']['roles'] %}
+                    {% if session['current_role'] == role.id %}
+                        <input type="radio" name="role" value="{{ role.id }}" checked> {{ role.name }}
+                    {% else %}
+                        <input type="radio" name="role" value="{{ role.id }}"> {{ role.name }}
+                    {% endif %}
+                {% endfor %}
+                <input type="submit" value="change">
+            </form>
+        </div>
+    </div>
 {% else %}
     <a href="{{ url_for('login') }}">login</a>
 {% endif %}

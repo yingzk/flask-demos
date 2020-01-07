@@ -1,7 +1,7 @@
 from flask import session, render_template, request, redirect
 
 from app import create_app
-from app.models import UserModel
+from app.models import UserModel, RoleModel
 
 app = create_app()
 
@@ -13,23 +13,28 @@ def login():
 
     user = UserModel.login(request.form)
     session['user'] = user
+    # 默认选择第一个角色登录
+    session['current_role'] = user['roles'][0]['id']
     return redirect('/')
 
 
 @app.route('/logout')
 def logout():
-    if 'user' in session:
-        session.pop('user')
-    return '<p>logout success.</p> return to <a href="/">index</a>.'
+    session.clear()
+    return '<p>logout success.</p> return to <a href="/">index</a> or <a href="/login">login</a>.'
+
+
+@app.route('/change_role', methods=['POST'])
+def change_role():
+    form = request.form
+    session['current_role'] = int(form['role'])
+    return redirect('/')
 
 
 @app.route('/')
 @app.route('/index')
 def index():
-    if 'user' in session:
-        menu = UserModel.get_menu(session['user']['id'], 4)
-    else:
-        menu = []
-    return render_template('index.html', menu=menu)
-
-# TODO 权限
+    page_data = {}
+    if 'current_role' in session:
+        page_data['menu'] = RoleModel.get_menu(session['current_role'])
+    return render_template('index.html', **page_data)

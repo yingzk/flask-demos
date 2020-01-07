@@ -16,6 +16,18 @@ class PermissionModel(BaseModel):
     name = db.Column(String(20), nullable=False, unique=True, comment='权限名')
     remark = db.Column(String(200), nullable=True, comment='备注')
 
+    menus = db.relationship(
+        'MenuModel',
+        secondary='permission_menu',
+        primaryjoin='PermissionModel.id == PermissionMenuModel.permission_id',
+        secondaryjoin='PermissionMenuModel.menu_id == MenuModel.id',
+        uselist=True
+    )
+
+    def get_menus(self):
+        """获取某个权限对应的菜单"""
+        return [item.to_json() for item in self.menus]
+
     def __repr__(self):
         return f'<PermissionModel {self.id}>'
 
