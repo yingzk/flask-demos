@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<script>
+    $.ajax({
+        url: 'http://127.0.0.1:5001/api',
+        method: 'POST'
+    }).done(e=>{
+        console.log(e)
+    })
+</script>
+</body>
+</html>
